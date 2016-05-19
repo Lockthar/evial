@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<widget xmlns   = "http://www.w3.org/ns/widgets"
+	xmlns:gap   = "http://educacionvial.cl/ns/1.0"
+	xmlns:android   = "http://schemas.android.com/apk/res/android"
+	id          = "com.eduvial.movil"
+	versionCode = "14" 
+	version     = "0.1.0" >
+	<name>Educacion Vial</name>
+	<description>
+		Muestra de aplicación, para educacionvial
+	</description>
+	<author href="https://movil.educacionvial.cl" email="soporte@educacionvial.cl">
+		Rodrigo Escobar
+	</author>
+	
+	<preference name="orientation" value="portrait" />
+	<preference name="target-device" value="universal" />
+	<preference name="fullscreen" value="false" />
+	
+	<access origin="http://sohomedia.cl" subdomains="true" />
+	
+	<icon src="icon.png" />
+	<icon src="res/icon/android/ldpi.png"   gap:platform="android"    gap:qualifier="ldpi" />
+	<icon src="res/icon/android/mdpi.png"   gap:platform="android"    gap:qualifier="mdpi" />
+	<icon src="res/icon/android/hdpi.png"   gap:platform="android"    gap:qualifier="hdpi" />
+	<icon src="res/icon/android/xhdpi.png"  gap:platform="android"    gap:qualifier="xhdpi" />
+	<icon src="res/icon/android/xxhdpi.png"  gap:platform="android"    gap:qualifier="xxhdpi" />
+	<icon src="res/icon/android/xxxhdpi.png"  gap:platform="android"    gap:qualifier="xxxhdpi" />
+	
+	<plugin name="cordova-plugin-network-information" source="pgb" spec="1.0.1" />
+	<plugin name="io.litehelpers.cordova.sqlitestorage" source="pgb" spec="0.7.5" />
+
+</widget>

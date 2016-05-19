@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />    
+<!--<script src="phonegap.js"></script>-->
+<title>Clase B</title>
+<meta name="viewport" content="width=device-width, user-scalable=no">
+<link rel="stylesheet" type="text/css" href="www/assets/base.css">  
+<script src="www/js/jquery-2.1.3.min.js"></script>
+<script src="www/js/pregunta2.js"></script>
+<script language="JavaScript">
+var $p = 0;//numero pregunta
+var $timex;//tiempo
+var $orden = new Array();//orden (random) preguntas
+var usuario = new Array();
+var oline;//verifica si se esta conectado
+var $lquiz = 15;//largo del test
+var db;//conexion a la db
+$(function(){	
+	$orden = F_desort(preguntas.length);
+	$width = $('#wrapper').width();
+	$('#pageb img').css({'max-width' : $width , 'height' : 'auto'});
+	$("#next").on('click',function(){
+		usuario[$p] = $('#leresp').val();
+		$p = $p+1;
+		$("html, body").animate({ scrollTop: 0 }, "slow");
+		F_vwQuest($p,preguntas,$orden);
+	});
+	$('#pagea').hide();
+	$('#pageb').hide();
+	$('#pagec').hide();
+	$("#prev").on('click',function(){
+		$('#page0').show();
+		$('#pagea').hide();
+	});
+	$('.menu-btn').on('click', function(){
+		$('#page0').hide();
+		$('#pagea').show();
+		//F_start(600, preguntas,$orden);
+	});
+	$('#entrar').on('click', function(){
+		$('#pagea').hide();
+		$('#pageb').show();
+		F_start(600, preguntas,$orden);
+	});
+	$('.evaluar').on('click', function(){
+		$('#pageb').hide();
+		$('#pagec').show();
+		F_estadistica();
+	});
+	$('.footin-left').on('click', function(){
+		$('#page0').show();
+		$('#pagea').hide();
+		$('#pageb').hide();
+		$('#pagec').hide();
+	});
+	document.addEventListener("deviceready", onDeviceReady, false);
+});
+function onDeviceReady(){
+	appInit();
+	document.addEventListener("offline", onOffline, false);
+	document.addEventListener("online", onLine, false);
+	oline = checkConnection();
+	if(oline){
+		$('.banner').html('con internet');
+	}else{
+		$('.banner').html('sin internet');
+	}
+}
+function appInit(){
+	//verificar que exista la base de datos
+	db = window.sqlitePlugin.openDatabase({name: "evial.db", createFromLocation: 1});
+	var $s = 1;
+	var rtv = getSingleRow(1);
+	if(rtv===0){
+		db.transaction(function(tx) {
+			for (var key in $orden) {
+				console.log($orden[key]);
+				var id = $s;
+				var pos = $orden[key];
+				tx.executeSql('INSERT INTO tb_orden (or_id, or_pos) VALUES (?, ?)', [id, pos]);
+				$s++;
+			}
+			tx.executeSql('UPDATE tb_exists SET ex_hay= ? WHERE ex_id = ?', [1, 1]);
+			tx.executeSql('INSERT INTO tb_exists (ex_id, ex_hay) VALUES (?, ?)', [2, 1]);
+		}, function(e) {
+			console.log("ERROR: " + e.message);
+		});
+	}
+}
+//single record
+function getSingleRow(id){
+	var $vtr;
+	db.transaction(function (tx){
+		tx.executeSql('SELECT ex_hay FROM tb_exists WHERE ex_id=?',[id],function(tx,results){
+			var len = results.rows.length;
+			if(len>0){
+				$vtr = results.rows.item(0)['ex_hay'];//alert(results.rows.item(0)['ex_hay']);
+			}
+		}, errorCB);
+	},errorCB,successCB);
+	return $vtr;
+}
+//Multiple records
+function getMultipleRows(){
+	db.transaction (function (tx){
+		tx.executeSql('SELECT or_id, or_pos FROM tb_orden', [], function(tx,results){
+			var len = results.rows.length;
+			if(len>0){
+				for (var i = 0; i < len; i++) {
+				alert(results.rows.item(i)['or_pos']);
+				}
+			}
+		},errorCB);
+	},errorCB,successCB);
+}
+function onOffline(){
+}
+function onLine(){
+}
+</script> 
+</head>
+<body>
+<div id="wrapper">
+<div id="page0">
+	<div class="antifoot">
+	<div class="row center">
+    	<div class="logohome"><img src="www/assets/page0-top.jpg" alt="top" /></div>
+    </div>
+    <div class="row">
+    	<div class="menu-btn"><img src="www/assets/menu-a.png" alt="menua" /></div>
+        <div class="menu-btn"><img src="www/assets/menu-b.png" alt="menub" /></div>
+    </div>
+    <div class="row">
+    	<div class="menu-btn"><img src="www/assets/menu-c.png" alt="menuc" /></div>
+        <div class="menu-btn"><img src="www/assets/menu-d.png" alt="menud" /></div>
+    </div>
+    <div class="row">
+    	<div class="menu-btn"><img src="www/assets/menu-e.png" alt="menue" /></div>
+        <div class="menu-btn"><img src="www/assets/menu-f.png" alt="menuf" /></div>
+    </div>
+    </div>
+    <div class="foot-home">
+        <div id="banner0" class="banner">banner</div>
+     </div>
+</div>
+<div id="pagea">
+    <div class="patitle">Examen X</div>
+    <div id="entrar">Comenzar</div>
+    <div class="foot">
+     	<div class="foo-top">
+        	<div class="foo-left"><div id="prev"></div></div>
+            <div class="foo-center"></div>
+            <div class="foo-right"></div>
+        </div>
+        <div class="foo-bott">
+        	<div id="bannera" class="banner">banner</div>
+        </div>
+     </div>
+</div>
+<div id="pageb">
+<a name="top"></a>
+     <div id="content">
+     <div id="head">
+     	<div class="hdone"></div>
+        <div class="hdtwo">educacionvial.cl</div>
+        <div class="hdthree"><div id="pfrom"></div></div>
+     </div>
+     <div id="pregunta"><p></p></div>
+     <div id="image"></div>
+     <div id="alternativas">
+        <div id="checkbox">
+        <label>
+            <input type="checkbox" name="c0" id="c0">
+            <span></span>
+        </label>
+        <label>
+            <input type="checkbox" name="c1" id="c1">
+            <span></span>
+        </label>
+        <label>
+            <input type="checkbox" name="c2" id="c2">
+            <span></span>
+        </label>
+        <label>
+            <input type="checkbox" name="c3" id="c3">
+            <span></span>
+        </label>
+        </div>
+        <div id="radio">
+        <label>
+            <input type="radio" name="r0" id="r0" />
+            <span></span>
+        </label>
+        <label>
+            <input type="radio" name="r0" id="r1" />
+            <span></span>
+        </label>
+        <label>
+            <input type="radio" name="r0" id="r2" />
+            <span></span>
+        </label>
+        <label>
+            <input type="radio" name="r0" id="r3" />
+            <span></span>
+        </label>
+        </div>
+     </div><!--alternativas-->
+     <div class="foot">
+     	<div class="foo-top">
+            <div class="foo-left"><div class="evaluar">EVALUAR</div></div>
+            <div class="foo-center"><div class="reloj"></div></div>
+            <div class="foo-right"><div id="next"></div></div>
+        </div>
+        <div class="foo-bott">
+        	<div id="bannerb" class="banner">banner</div>
+        </div>
+     </div>
+     <input type="hidden" name="leresp" id="leresp" value="">
+     </div>
+</div><!--pageb-->
+<div id="pagec">
+    <div id="fhead"></div>
+    <div id="fbott">
+        <div id="faprob"></div>
+        <div id="fresul"></div>
+        <div id="frevis">
+            <span>Ver Detalle</span>
+            <div id="fboxes"></div>
+        </div>
+    </div>
+    <div class="footin">
+        <div class="footin-left">nuevo</div>
+        <div class="footin-right">revisar</div>
+     </div>
+</div><!--pagec-->
+<div id="show_resul" style="display:none;">
+<div id="sw_content" >
+     <div id="sw_pregunta"><p></p></div>
+     <div id="sw_image"></div>
+     <div id="sw_alternativas">
+     <div class="sw_item" id="sw_it0"><p></p></div>
+     <div class="sw_item" id="sw_it1"><p></p></div>
+     <div class="sw_item" id="sw_it2"><p></p></div>
+     <div class="sw_item" id="sw_it3"><p></p></div>
+     </div><!--alternativas-->
+     <div id="volver">Volver</div>
+</div>
+</div>
+</div><!--wrapper-->
+<script src="www/js/funciones.js"></script>
+</body>
+</html>
